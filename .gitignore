@@ -22,5 +22,8 @@
 ### Go Patch ###
 /vendor/
 /Godeps/
-/config/
+# /config/
+.DS_Store
+*/.DS_Store
+config.json
 # End of https://www.toptal.com/developers/gitignore/api/go

@@ -51,17 +51,17 @@ type ResultDetail struct {
 }
 
 func main() {
-  c := flag.String("c", "./config/config.json", "Specify the configuration file.")
+  c := flag.String("c", "./config.json", "Specify the configuration file.")
   flag.Parse()
   config := LoadConfiguration(*c)
   ip := GetIp()
-  ok, records := GetRecords(config)
+  _, records := GetRecords(config)
   recordCreated := false
   var recordId string
-  for resultA := range records.Result {
-    if resultA.Name == config.FullDomainName {
+  for _, result := range records.Result {
+    if result.Name == config.FullDomainName {
       recordCreated = true
-      recordId = resultA.Id
+      recordId = result.Id
     }
   }
   if recordCreated {
