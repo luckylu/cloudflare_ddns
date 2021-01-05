@@ -8,6 +8,7 @@ import (
   "gopkg.in/h2non/gentleman.v2/plugins/body"
   "gopkg.in/h2non/gentleman.v2/plugins/headers"
   "os"
+  "time"
 )
 
 type Config struct {
@@ -18,6 +19,7 @@ type Config struct {
   Priority       int
   Proxied        bool
   ZoneId         string
+  Interval       int64
 }
 
 type ResponseResult struct {
@@ -64,12 +66,24 @@ func main() {
       recordId = result.Id
     }
   }
+  done := make(chan bool)
   if recordCreated {
-    UpdateRecord(config, recordId, ip)
+    go LoopUpdateRecord(config, recordId, ip, done)
   } else {
-    CreateRecord(config, ip)
+    _, createResult := CreateRecord(config, ip)
+    go LoopUpdateRecord(config, createResult.Result.Id, ip, done)
+  }
+  <-done
+}
+
+func LoopUpdateRecord(config Config, recordId string, ip string, done chan bool){
+  tick := time.Tick(time.Duration(config.Interval)*time.Second)
+  for {
+    UpdateRecord(config, recordId, ip)
+    <- tick
   }
 }
+
 
 func GetIp() (ip string) {
   cli := gentleman.New()
@@ -92,9 +106,9 @@ func GetRecords(config Config) (ok bool, result ResponseResults) {
     return
   }
   if !res.Ok {
-    json.Unmarshal([]byte(res.String()), &result)
-    ok = false
-    return
+    // json.Unmarshal([]byte(res.String()), &result)
+    // ok = false
+    panic(res.String())
   }
 
   json.Unmarshal([]byte(res.String()), &result)
@@ -120,9 +134,10 @@ func CreateRecord(config Config, ip string) (ok bool, result ResponseResult) {
     return
   }
   if !res.Ok {
-    json.Unmarshal([]byte(res.String()), &result)
-    ok = false
-    return
+    // json.Unmarshal([]byte(res.String()), &result)
+    // ok = false
+    // return
+    panic(res.String())
   }
 
   json.Unmarshal([]byte(res.String()), &result)
@@ -131,6 +146,7 @@ func CreateRecord(config Config, ip string) (ok bool, result ResponseResult) {
 }
 
 func UpdateRecord(config Config, recordId string, ip string) (ok bool, result ResponseResult) {
+  fmt.Println("update record")
   cli := gentleman.New()
 
   // Define a custom header
@@ -148,9 +164,10 @@ func UpdateRecord(config Config, recordId string, ip string) (ok bool, result Re
     return
   }
   if !res.Ok {
-    json.Unmarshal([]byte(res.String()), &result)
-    ok = false
-    return
+    // json.Unmarshal([]byte(res.String()), &result)
+    // ok = false
+    // return
+    panic(res.String())
   }
 
   json.Unmarshal([]byte(res.String()), &result)
