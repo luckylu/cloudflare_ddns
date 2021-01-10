@@ -26,3 +26,9 @@ download the latest program from releases
 ```ruby
 ./cloudflare_ddns #if config file is not in current directory use -c to specify where the config file locate
 ```
+
+run in backgroud(macOS & linux)
+
+```ruby
+nohup ./cloudflare_ddns >/dev/null 2>&1 &
+```
