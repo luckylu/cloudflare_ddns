@@ -16,8 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         go_version:
-          - 1.12.4
-          - 1.13.x
+          - 1.14.2
     runs-on: ubuntu-latest
     steps:
       -
@@ -30,8 +29,8 @@ jobs:
           xgo_version: latest
           go_version: ${{ matrix.go_version }}
           dest: build
-          prefix: myapp
-          targets: windows/386,windows/amd64,linux/386,linux/amd64,darwin/386,darwin/amd64
+          prefix: cloudflare_ddns
+          targets: windows/amd64,linux/amd64,darwin/amd64
           v: true
           x: false
           race: false

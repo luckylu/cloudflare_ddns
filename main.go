@@ -12,15 +12,15 @@ import (
 )
 
 type Config struct {
-  AuthToken      string
-  DnsType        string
-  FullDomainName string
-  Ttl            int
-  Priority       int
-  Proxied        bool
-  ZoneId         string
-  Interval       int64
-  GetIpApi       string
+  ApiToken                string
+  DnsType                 string
+  FullQualifiedDomainName string
+  Ttl                     int
+  Priority                int
+  Proxied                 bool
+  ZoneId                  string
+  Interval                int64
+  GetIpApi                string
 }
 
 type ResponseResult struct {
@@ -62,7 +62,7 @@ func main() {
   recordCreated := false
   var recordId string
   for _, result := range records.Result {
-    if result.Name == config.FullDomainName {
+    if result.Name == config.FullQualifiedDomainName {
       recordCreated = true
       recordId = result.Id
     }
@@ -97,7 +97,7 @@ func GetIp(config Config) (ip string) {
 
 func GetRecords(config Config) (ok bool, result ResponseResults) {
   cli := gentleman.New()
-  authorization := "Bearer " + config.AuthToken
+  authorization := "Bearer " + config.ApiToken
   customHeaders := map[string]string{"Authorization": authorization, "Content-Type": "application/json"}
   cli.Use(headers.SetMap(customHeaders))
   res, err := cli.Request().Method("GET").URL("https://api.cloudflare.com/client/v4/zones/" + config.ZoneId + "/dns_records").Send()
@@ -120,11 +120,11 @@ func CreateRecord(config Config, ip string) (ok bool, result ResponseResult) {
   cli := gentleman.New()
 
   // Define a custom header
-  authorization := "Bearer " + config.AuthToken
+  authorization := "Bearer " + config.ApiToken
   customHeaders := map[string]string{"Authorization": authorization, "Content-Type": "application/json"}
   cli.Use(headers.SetMap(customHeaders))
 
-  data := map[string]interface{}{"type": config.DnsType, "name": config.FullDomainName, "content": ip, "ttl": config.Ttl, "priority": config.Priority, "proxied": config.Proxied}
+  data := map[string]interface{}{"type": config.DnsType, "name": config.FullQualifiedDomainName, "content": ip, "ttl": config.Ttl, "priority": config.Priority, "proxied": config.Proxied}
   cli.Use(body.JSON(data))
 
   // Perform the request
@@ -150,11 +150,11 @@ func UpdateRecord(config Config, recordId string, ip string) (ok bool, result Re
   cli := gentleman.New()
 
   // Define a custom header
-  authorization := "Bearer " + config.AuthToken
+  authorization := "Bearer " + config.ApiToken
   customHeaders := map[string]string{"Authorization": authorization, "Content-Type": "application/json"}
   cli.Use(headers.SetMap(customHeaders))
 
-  data := map[string]interface{}{"type": config.DnsType, "name": config.FullDomainName, "content": ip, "ttl": config.Ttl, "priority": config.Priority, "proxied": config.Proxied}
+  data := map[string]interface{}{"type": config.DnsType, "name": config.FullQualifiedDomainName, "content": ip, "ttl": config.Ttl, "priority": config.Priority, "proxied": config.Proxied}
   cli.Use(body.JSON(data))
 
   // Perform the request
