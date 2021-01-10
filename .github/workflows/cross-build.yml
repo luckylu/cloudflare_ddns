@@ -8,7 +8,7 @@ on:
   #       - created
   push:
     branches:
-      - main
+      - master
 # workflow tasks
 jobs:
   generate:
