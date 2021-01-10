@@ -26,7 +26,7 @@ jobs:
         name: Build with xgo
         uses: crazy-max/ghaction-xgo@v1
         with:
-          xgo_version: latest
+          xgo_version: go-1.14-r18
           go_version: ${{ matrix.go_version }}
           dest: build
           prefix: cloudflare_ddns
