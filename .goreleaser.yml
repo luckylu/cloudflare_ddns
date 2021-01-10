@@ -16,6 +16,9 @@ builds:
     - darwin
     - linux
     - windows
+  goarm:
+    - 6
+    - 7
 archives:
 - replacements:
     darwin: Darwin
