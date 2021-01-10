@@ -11,23 +11,29 @@ on:
       - master
 # workflow tasks
 jobs:
-  generate:
-    name: Generate cross-platform builds
+  xgo:
+    strategy:
+      fail-fast: false
+      matrix:
+        go_version:
+          - 1.12.4
+          - 1.13.x
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repository
+      -
+        name: Checkout
         uses: actions/checkout@v2
-      - name: Generate build files
-        uses: luckylu/go-cross-build@master
+      -
+        name: Build with xgo
+        uses: crazy-max/ghaction-xgo@v1
         with:
-            platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-            name: 'cloudflare_ddns'
-            compress: 'true'
-            dest: 'dist'
-      # step 3: upload build-artifacts
-      - name: Upload build-artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: "./dist/*.tar.gz"
+          xgo_version: latest
+          go_version: ${{ matrix.go_version }}
+          dest: build
+          prefix: myapp
+          targets: windows/386,windows/amd64,linux/386,linux/amd64,darwin/386,darwin/amd64
+          v: true
+          x: false
+          race: false
+          ldflags: -s -w
+          buildmode: default
