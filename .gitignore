@@ -22,6 +22,7 @@
 ### Go Patch ###
 /vendor/
 /Godeps/
+dist/*
 # /config/
 .DS_Store
 */.DS_Store
