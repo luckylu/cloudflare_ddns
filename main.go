@@ -20,6 +20,7 @@ type Config struct {
   Proxied        bool
   ZoneId         string
   Interval       int64
+  GetIpApi       string
 }
 
 type ResponseResult struct {
@@ -56,7 +57,7 @@ func main() {
   c := flag.String("c", "./config.json", "Specify the configuration file.")
   flag.Parse()
   config := LoadConfiguration(*c)
-  ip := GetIp()
+  ip := GetIp(config)
   _, records := GetRecords(config)
   recordCreated := false
   var recordId string
@@ -76,18 +77,17 @@ func main() {
   <-done
 }
 
-func LoopUpdateRecord(config Config, recordId string, ip string, done chan bool){
-  tick := time.Tick(time.Duration(config.Interval)*time.Second)
+func LoopUpdateRecord(config Config, recordId string, ip string, done chan bool) {
+  tick := time.Tick(time.Duration(config.Interval) * time.Second)
   for {
     UpdateRecord(config, recordId, ip)
-    <- tick
+    <-tick
   }
 }
 
-
-func GetIp() (ip string) {
+func GetIp(config Config) (ip string) {
   cli := gentleman.New()
-  res, err := cli.Request().Method("GET").URL("http://members.3322.org/dyndns/getip").Send()
+  res, err := cli.Request().Method("GET").URL(config.GetIpApi).Send()
   if err != nil {
     panic(err.Error())
   }
