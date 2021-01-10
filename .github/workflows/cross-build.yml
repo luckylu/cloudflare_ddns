@@ -21,7 +21,6 @@ jobs:
         uses: thatisuday/go-cross-build@v1
         with:
             platforms: 'linux/amd64, darwin/amd64, windows/amd64'
-            package: ''
             name: 'cloudflare_ddns'
             compress: 'true'
             dest: 'dist'
