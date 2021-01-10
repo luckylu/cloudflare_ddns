@@ -1,60 +1,25 @@
-name: Cross-Build
+# workflow name
+name: Generate release-artifacts
 
+# on events
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  release:
+    types:
+        - created
 
+# workflow tasks
 jobs:
-  cross-build-test:
-    strategy:
-      fail-fast: false
-      matrix:
-        goos: ['android', 'linux', 'solaris', 'illumos', 'dragonfly', 'freebsd', 'openbsd', 'plan9', 'windows', 'darwin', 'netbsd']
-        go: [ '1.14', '1.15' ]
+  generate:
+    name: Generate cross-platform builds
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ matrix.go }}
-
-      - name: Print Go version and environment
-        id: vars
-        run: |
-          printf "Using go at: $(which go)\n"
-          printf "Go version: $(go version)\n"
-          printf "\n\nGo environment:\n\n"
-          go env
-          printf "\n\nSystem environment:\n\n"
-          env
-          echo "::set-output name=go_cache::$(go env GOCACHE)"
-
-      - name: Cache the build cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.vars.outputs.go_cache }}
-          key: cross-build-go${{ matrix.go }}-${{ matrix.goos }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            cross-build-go${{ matrix.go }}-${{ matrix.goos }}
-
-      - name: Checkout code into the Go module directory
+      - name: Checkout the repository
         uses: actions/checkout@v2
-
-      - name: Run Build
-        env:
-          CGO_ENABLED: 0
-          GOOS: ${{ matrix.goos }}
-        shell: bash
-        continue-on-error: true
-        working-directory: ./cmd/cloudflare_ddns
-        run: |
-          GOOS=$GOOS go build -trimpath -o cloudflare_ddns-"$GOOS"-amd64 2> /dev/null
-          if [ $? -ne 0 ]; then
-            echo "::warning ::$GOOS Build Failed"
-            exit 0
-          fi
+      - name: Generate build files
+        uses: thatisuday/go-cross-build@v1
+        with:
+            platforms: 'linux/amd64, linux/arm, darwin/amd64, darwin/arm windows/amd64'
+            package: ''
+            name: 'cloudflare_ddns'
+            compress: 'true'
+            dest: 'dist'
