@@ -17,6 +17,7 @@ builds:
     - linux
     - windows
   goarm:
+    - 5
     - 6
     - 7
 archives:
