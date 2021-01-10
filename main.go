@@ -69,18 +69,18 @@ func main() {
   }
   done := make(chan bool)
   if recordCreated {
-    go LoopUpdateRecord(config, recordId, ip, done)
+    go LoopUpdateRecord(config, recordId, done)
   } else {
     _, createResult := CreateRecord(config, ip)
-    go LoopUpdateRecord(config, createResult.Result.Id, ip, done)
+    go LoopUpdateRecord(config, createResult.Result.Id, done)
   }
   <-done
 }
 
-func LoopUpdateRecord(config Config, recordId string, ip string, done chan bool) {
+func LoopUpdateRecord(config Config, recordId string, done chan bool) {
   tick := time.Tick(time.Duration(config.Interval) * time.Second)
   for {
-    UpdateRecord(config, recordId, ip)
+    UpdateRecord(config, recordId)
     <-tick
   }
 }
@@ -145,8 +145,9 @@ func CreateRecord(config Config, ip string) (ok bool, result ResponseResult) {
   return
 }
 
-func UpdateRecord(config Config, recordId string, ip string) (ok bool, result ResponseResult) {
-  fmt.Println("update record")
+func UpdateRecord(config Config, recordId string) (ok bool, result ResponseResult) {
+  ip := GetIp(config)
+  fmt.Println("update record", ip)
   cli := gentleman.New()
 
   // Define a custom header
