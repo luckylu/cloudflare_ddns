@@ -67,7 +67,7 @@ func main() {
       recordId = result.Id
     }
   }
-  done := make(chan bool)
+  done := make(chan bool, 1)
   if recordCreated {
     go LoopUpdateRecord(config, recordId, done)
   } else {
@@ -86,6 +86,12 @@ func LoopUpdateRecord(config Config, recordId string, done chan bool) {
 }
 
 func GetIp(config Config) (ip string) {
+  defer func() {
+    if err := recover(); err != nil {
+      fmt.Println("err get ip:", err)
+      ip = GetIp(config)
+    }
+  }()
   cli := gentleman.New()
   res, err := cli.Request().Method("GET").URL(config.GetIpApi).Send()
   if err != nil {
@@ -148,6 +154,7 @@ func CreateRecord(config Config, ip string) (ok bool, result ResponseResult) {
 func UpdateRecord(config Config, recordId string) (ok bool, result ResponseResult) {
   ip := GetIp(config)
   fmt.Println("update record", ip)
+  fmt.Println(time.Now())
   cli := gentleman.New()
 
   // Define a custom header
