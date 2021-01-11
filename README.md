@@ -13,7 +13,7 @@ create a file named config.json with following fields in current directory
   "Priority": 10,
   "Proxied": false,
   "ZoneId": "abcde", #view your Zone Id at domain overview page
-  "Interval": 180, # update dns record every 180 seconds
+  "Interval": 60, # update dns record every 60 seconds, recommend less than 60 seconds
   "GetIpApi": "http://members.3322.org/dyndns/getip" # get ip api or any other api provider that return ip address
 }
 

@@ -78,10 +78,11 @@ func main() {
 }
 
 func LoopUpdateRecord(config Config, recordId string, done chan bool) {
-  tick := time.Tick(time.Duration(config.Interval) * time.Second)
+  ticker := time.NewTicker(time.Duration(config.Interval) * time.Second)
+  defer ticker.Stop()
   for {
     UpdateRecord(config, recordId)
-    <-tick
+    <-ticker.C
   }
 }
 
@@ -167,6 +168,7 @@ func UpdateRecord(config Config, recordId string) (ok bool, result ResponseResul
 
   // Perform the request
   res, err := cli.Request().Method("PUT").URL("https://api.cloudflare.com/client/v4/zones/" + config.ZoneId + "/dns_records/" + recordId).Send()
+  fmt.Println(res)
   if err != nil {
     ok = false
     return
