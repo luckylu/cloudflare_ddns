@@ -4,6 +4,7 @@ import (
   "encoding/json"
   "flag"
   "fmt"
+  "github.com/jasonlvhit/gocron"
   "gopkg.in/h2non/gentleman.v2"
   "gopkg.in/h2non/gentleman.v2/plugins/body"
   "gopkg.in/h2non/gentleman.v2/plugins/headers"
@@ -19,7 +20,7 @@ type Config struct {
   Priority                int
   Proxied                 bool
   ZoneId                  string
-  Interval                int64
+  Interval                uint64
   GetIpApi                string
 }
 
@@ -67,23 +68,17 @@ func main() {
       recordId = result.Id
     }
   }
-  done := make(chan bool, 1)
   if recordCreated {
-    go LoopUpdateRecord(config, recordId, done)
+    LoopUpdateRecord(config, recordId)
   } else {
     _, createResult := CreateRecord(config, ip)
-    go LoopUpdateRecord(config, createResult.Result.Id, done)
+    LoopUpdateRecord(config, createResult.Result.Id)
   }
-  <-done
 }
 
-func LoopUpdateRecord(config Config, recordId string, done chan bool) {
-  ticker := time.NewTicker(time.Duration(config.Interval) * time.Second)
-  defer ticker.Stop()
-  for {
-    UpdateRecord(config, recordId)
-    <-ticker.C
-  }
+func LoopUpdateRecord(config Config, recordId string) {
+  gocron.Every(config.Interval).Seconds().From(gocron.NextTick()).Do(UpdateRecord, config, recordId)
+  <-gocron.Start()
 }
 
 func GetIp(config Config) (ip string) {
