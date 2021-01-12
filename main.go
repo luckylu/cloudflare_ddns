@@ -67,22 +67,22 @@ func main() {
       recordId = result.Id
     }
   }
-  done := make(chan bool, 1)
+  // done := make(chan bool, 1)
   if recordCreated {
-    go LoopUpdateRecord(config, recordId, done)
+    LoopUpdateRecord(config, recordId)
   } else {
     _, createResult := CreateRecord(config, ip)
-    go LoopUpdateRecord(config, createResult.Result.Id, done)
+    LoopUpdateRecord(config, createResult.Result.Id)
   }
-  <-done
+  // <-done
 }
 
-func LoopUpdateRecord(config Config, recordId string, done chan bool) {
-  ticker := time.NewTicker(time.Duration(config.Interval) * time.Second)
-  defer ticker.Stop()
+func LoopUpdateRecord(config Config, recordId string) {
+  // ticker := time.NewTicker(time.Duration(config.Interval) * time.Second)
+  // defer ticker.Stop()
   for {
     UpdateRecord(config, recordId)
-    <-ticker.C
+    time.Sleep(time.Duration(config.Interval) * time.Second)
   }
 }
 
